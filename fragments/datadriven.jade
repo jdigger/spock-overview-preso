@@ -1,0 +1,85 @@
+section
+    h1 Data Driven Tests
+
+section
+    .vcenter
+        p We saw some of this earlier:
+        pre: code.java.
+            @Unroll
+            def "multiply #left and #right should return zero"() {
+                given:
+                def tester = new MyClass()
+
+                expect:
+                0 == tester.multiply(left, right)
+
+                where:
+                left | right
+                10   | 0
+                0    | 10
+                0    | 0
+            }
+
+section
+    .vcenter
+        img(src="images/unroll_with_error.png")
+
+section
+    .vcenter
+        p External data source:
+        pre: code.java.
+            @Shared
+            @AutoCleanup
+            def sql = DBI.open("jdbc:h2:mem:test")
+
+            @Unroll
+            def "verify calculations for #a * #b == #c"() {
+                expect:
+                a * b == c
+
+                where:
+                [a, b, c] << sql.rows("select a, b, c from maxdata")
+            }
+
+
+section
+    .vcenter
+        p Making it easier to read, so that instead of
+        pre: code.java.
+            def "can tell if the string '#string' is an integer or not"() {
+                expect:
+                string.isInteger() == shouldBeInteger
+
+                where:
+                string | shouldBeInteger
+                "ABC"  | false
+                "123"  | true
+                "1.2"  | false
+                "1 2"  | false
+                "12a"  | false
+            }
+        img(src="images/simple_unroll.png")
+
+section
+    .vcenter
+        p Use a simple calculation in "where"
+        pre: code.java.
+            def "the string '#string' is #description"() {
+                expect:
+                string.isInteger() == expected
+
+                where:
+                string | expected
+                "ABC"  | false
+                "123"  | true
+                "1.2"  | false
+                "1 2"  | false
+                "12a"  | false
+
+                description = expected ? "an integer" : "not an integer"
+            }
+        img(src="images/expressive_unroll.png")
+
+section
+    .vcenter
+        p For a lot more information, see <a href="http://spock-framework.readthedocs.org/en/latest/data_driven_testing.html">the Data Driven Tests</a> documentation

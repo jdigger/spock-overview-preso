@@ -1,0 +1,50 @@
+section
+    h1 Mocking
+
+section
+    .vcenter
+        p EasyMock
+        pre: code.java.
+            List mock = createNiceMock(List.class);                                       
+
+            expect(mock.get(0)).andStubReturn("one");                             
+            expect(mock.get(1)).andStubReturn("two");
+            mock.clear();
+
+            replay(mock);
+
+            someCodeThatInteractsWithMock(mock);                                                      
+
+            verify(mock);
+        p Spock
+        pre: code.java.
+            given:
+            List mock = Mock(List)
+
+            when:
+            someCodeThatInteractsWithMock(mock)
+
+            then:
+            1 * mock.get(0) >> "one"
+            1 * mock.get(1) >> "two"
+
+section
+    .vcenter
+        p Groovy's closure -> method technique works as well
+        pre: code.java.
+            given:
+            def mock = Mock(ArrayList)
+
+            mock.get(_) >> {int idx -> idx == 0 ? "one" : idx == 1 ? "two" : "WAH? ${idx}"}
+
+            expect:
+            mock.get(0) == "one"
+            mock.get(1) == "two"
+            mock.get(7) == "WAH? 7"
+        p If you have <code>cglib</code> in your classpath, you can mock classes (not just instances)
+
+section
+    .vcenter
+        p That's barely scratching the surface.
+        p Check out the "interaction" docs for a lot more:
+        p: a(href="http://spock-framework.readthedocs.org/en/latest/interaction_based_testing.html") http://spock-framework.readthedocs.org/en/latest/interaction_based_testing.html

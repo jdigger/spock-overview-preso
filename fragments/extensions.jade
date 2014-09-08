@@ -1,0 +1,106 @@
+section
+    h1 Extensions
+
+section
+    .vcenter
+        p Ignoring a pending feature
+        pre: code.java.
+            class MyClassSpec extends Specification {
+                @Ignore
+                def "a feature that's pending"() {
+                    expect:
+                    false
+                }
+
+                def "a working feature"() {
+                    expect:
+                    true
+                }
+            }
+        p <code>@Ignore</code> can also be applied to the class to ignore the entire specification
+
+section
+    .vcenter
+        p For those times when you want to test just a single feature...
+        pre: code.java.
+            class MyClassSpec extends Specification {
+                def "a feature"() {
+                    // ...
+                }
+
+                @IgnoreRest
+                def "another feature"() {
+                    // ...
+                }
+
+                def "yet another feature"() {
+                    // ...
+                }
+            }
+        p Only "another feature" will run; the other features effectively have <code>@Ignore</code>
+        p Like <code>@Ignore</code>, this can also be applied to the class
+
+section
+    .vcenter
+        p Conditional features
+        pre: code.java.
+            @IgnoreIf({ System.getProperty("os.name").contains("windows") })
+            def "I'll run everywhere but on Windows"() { ... }
+
+            @Requires({ os.windows })
+            def "I'll only run on Windows"() { ... }
+        p Some of the properties provided are "<code>os</code>", "<code>sys</code>" (<code>System.getProperty</code>), "<code>env</code>" (environment variables), and "<code>jvm</code>" (JVM info)
+
+section
+    .vcenter
+        p While generally it's best if the order of execution of features are independant, sometimes you want/need to force their order
+        pre: code.java.
+            @Stepwise
+            class RunInOrderSpec extends Specification {
+                def "I run first"()  { ... }
+                def "I run second"() { ... }
+            }
+
+section
+    .vcenter
+        p To set a timing threshold
+        pre: code.java.
+            @Timeout(10)
+            class TimedSpec extends Specification {
+                def "I fail after ten seconds"() { ... }
+
+                @Timeout(value = 250, unit = MILLISECONDS)
+                def "I fail much faster"() { ... }
+            }
+        p Of course for "real" tests you'd want something much more robust/accurate, but this is simple
+
+section
+    .vcenter
+        p The following are the same
+        pre: code.java.
+            class MyClassSpec1 extends Specification {
+                @AutoCleanup
+                MyClass myClass = new MyClass()
+            }
+
+            class MyClassSpec2 extends Specification {
+                MyClass myClass = new MyClass()
+
+                def cleanup() {
+                    myClass.close()
+                }
+            }
+
+        p If the method to clean up your class' resources is something other than <code>close()</code>, pass that as the value to <code>@AutoCleanup</code>
+        p This also works on <code>@Shared</code> members
+
+section
+    .vcenter
+        p Similar to th <code>@Subject</code> annotation, another "documentation only" annotation that's useful is <code>@Issue</code>
+        pre: code.java.
+            @Issue("http://issuetracker.myco.com/ISSUE-14826")
+            def "should not have a regression bug anymore"() { ... }
+
+section
+    .vcenter
+        p For a lot more information, see <a href="http://spock-framework.readthedocs.org/en/latest/extensions.html">the Extensions</a> documentation

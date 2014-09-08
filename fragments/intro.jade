@@ -1,0 +1,52 @@
+section
+    h1 Simple Testing
+
+section
+    .vcenter
+        p JUnit 4
+        pre: code.java.
+            @Test
+            public void multiplicationOfZeroIntegersShouldReturnZero() {
+                // MyClass is tested
+                MyClass tester = new MyClass();
+
+                // Tests
+                assertEquals("10 x 0 must be 0", 0, tester.multiply(10, 0));
+                assertEquals("0 x 10 must be 0", 0, tester.multiply(0, 10));
+                assertEquals("0 x 0 must be 0", 0, tester.multiply(0, 0));
+            }
+        p Spock
+        pre: code.java.
+            def "multiplication of zero integers should return zero"() {
+                given:
+                def tester = new MyClass()
+
+                expect:
+                0 == tester.multiply(10, 0)
+                0 == tester.multiply(0, 10)
+                0 == tester.multiply(0, 0)
+            }
+
+section
+    .vcenter
+        p Spock
+        pre: code.java.
+            @Unroll
+            def "multiply #left and #right should return zero"() {
+                given:
+                def tester = new MyClass()
+
+                expect:
+                0 == tester.multiply(left, right)
+
+                where:
+                left | right
+                10   | 0
+                0    | 10
+                0    | 0
+            }
+
+section
+    .vcenter
+        p What if there's an error?
+        img(src="images/unroll_with_error.png")

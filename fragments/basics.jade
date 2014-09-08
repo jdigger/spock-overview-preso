@@ -1,0 +1,125 @@
+section
+    h1 Basics
+
+section
+    .vcenter
+        p Spock transparently "appears" to be JUnit to tooling, so nothing special needs to be done in most tool-chains
+
+section
+    .vcenter
+        p Spock follows <a href="http://en.wikipedia.org/wiki/Behavior-driven_development">BDD</a> terminology, so you write "features" (a.k.a. "tests") and "specification" (a.k.a. "test suites")
+
+section
+    .vcenter
+        p The easiest way to write a specification is to extend the <code>Specification</code> class
+        pre: code.java.
+            class MyClassSpec extends Specification {
+                // ...
+            }
+
+section
+    .vcenter
+        p To create a feature definition create a method that defines what is "given", what happens "when" then features is used, and what should "then" be true
+        pre: code.java.
+            def "this feature does ..."() {
+                given: // implicit if the code is not in another block, like "when"
+                def myClass = new MyClass()
+                myClass.initialize()
+
+                when:
+                def state = myClass.doesStuff()
+
+                then:
+                state.theNum == 12 // has implicit "assert" in front
+            }
+
+section
+    .vcenter
+        p Sometimes what you want to test is a simple function
+        pre: code.java.
+            def "this feature does ..."() {
+                expect: // combines "when" and "then"
+                Math.max(0, 3) == 3
+            }
+        p The lines in "then" or "expect" should evaluate to true/false, including Groovy "truthiness"
+
+section
+    .vcenter
+        p Set up a variable for the features to use
+        pre: code.java.
+            class MyClassSpec extends Specification {
+                @Subject
+                MyClass myClass = new MyClass()
+
+                def setup() {
+                    myClass.initialize()
+                }
+
+                def cleanup() {
+                    myClass.close()
+                }
+            }
+        p The <code>@Subject</code> is informational only, just to highlight the "subject under test"
+        p A new instance of <code>MyClass</code> is created for each feature run
+        p (At compile time, the "<code>new MyClass()</code>" is actually moved down into the "<code>setup()</code>")
+
+section
+    .vcenter
+        p Set up a variable for the entire specification to use (and share between features)
+        pre: code.java.
+            class MyClassSpec extends Specification {
+                @Shared
+                MyClass myClass = new MyClass()
+
+                def setupSpec() {
+                    myClass.initialize()
+                }
+
+                def cleanupSpec() {
+                    myClass.close()
+                }
+            }
+        p While a "<code>static</code>" field could also work, <code>@Shared</code> is much preferred because you have much better lifecycle control
+
+section
+    .vcenter
+        p When you want to check that an exception is thrown:
+        pre: code.java.
+            given:
+            crew << "Kirk"
+
+            when:
+            crew << "Picard"
+
+            then:
+            thrown TooManyCaptainsException
+
+section
+    .vcenter
+        p If you want to see the insides of the exception
+        pre: code.java.
+            given:
+            crew << "Kirk"
+
+            when:
+            crew << "Picard"
+
+            then:
+            def exp = thrown(TooManyCaptainsException)
+            exp.message == "Enterprise can only support one captain at a time, Picard."
+            exp.captain == "Picard"
+
+section
+    .vcenter
+        p Rather than manually tracking old state...
+        pre: code.java.
+            def stack = new Stack()
+
+            def "size increases when pushed"() {
+                when:
+                stack.push "bunny"
+
+                then:
+                stack.size() == old(stack.size()) + 1
+
+            }

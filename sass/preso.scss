@@ -1,0 +1,169 @@
+div.code.note {
+    background-color: #ddeeee;
+    box-shadow: 0 0 6px black;
+    color: black;
+    text-align: left;
+    font-family: monospace;
+    font-size: 100%;
+    line-height: 1.2em;
+}
+
+p.note {
+    box-shadow: 0 0 6px black;
+    font-size: 100%;
+    line-height: 1.2em;
+}
+
+div.note {
+    box-shadow: 0 0 6px black;
+    font-size: 100%;
+    line-height: 1.2em;
+    padding: 10px;
+
+    p {
+        text-align: left;
+    }
+}
+
+.reveal .slides img.collabocats {
+    border: none;
+    box-shadow: none;
+    width: 300px;
+}
+
+%bash {
+    font-family: monospace;
+    white-space: pre;
+    text-align: left;
+    color: white;
+    background-color: black;
+    line-height: 1.2em;
+}
+
+div.bash {
+    @extend %bash;
+    overflow: auto;
+    color: white;
+    font-size: 60%;
+    max-height: 600px;
+    width: 100%;
+    padding: 10px;
+
+    .comment {
+        color: cyan;
+    }
+}
+
+$bash-command-color: lightgreen;
+span.bash {
+    @extend %bash;
+    color: $bash-command-color;
+}
+
+
+$bash-comment-color: yellow;
+span.bash-comment {
+    color: $bash-comment-color;
+}
+
+
+p.strong {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+
+i.fa {
+    font-family: "FontAwesome";
+    font-style: normal;
+}
+
+.conum {
+    display: inline-block;
+    color: white !important;
+    background-color: #222222;
+    -webkit-border-radius: 100px;
+    border-radius: 100px;
+    text-align: center;
+    width: 1.2em;
+    height: 1.2em;
+    font-size: 0.9em;
+    font-weight: bold;
+    line-height: 1.2;
+    font-family: Arial, sans-serif;
+    font-style: normal;
+    position: relative;
+    top: -0.1em;
+}
+
+.conum:after {
+    content: attr(data-value);
+}
+
+span.small {
+    font-size: 60%;
+}
+
+i.fa.fa-external-link {
+    font-size: 60%;
+}
+
+.tip {
+    color: blue;
+}
+
+/* warnings pop */
+.fa-exclamation-triangle {
+    color: red;
+}
+
+div.slides section {
+    table {
+        margin-left: auto;
+        margin-right: auto;
+
+        th, td {
+            border-width: 1px;
+            border-style: solid;
+        }
+        td {
+            padding: 2px;
+        }
+        tr td:first-child{
+            font-weight: bold;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    }
+}
+
+section.summary p {
+    font-size: 200%;
+    font-weight: bold;
+}
+
+.vcenter, .slides h1 {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    width: 100%;
+}
+
+.reveal .slides {
+    left: 50px;
+    top: 0px;
+}
+
+.reveal .slides > section {
+    left: 0px;
+    top: 0px;
+}
+
+// To highlight a border:
+
+// border: {
+//     color: red;
+//     style: solid;
+//     width: 1px;
+// }
