@@ -53,30 +53,6 @@ p.strong {
   font-weight: bold;
   font-size: 1.2em; }
 
-i.fa {
-  font-family: "FontAwesome";
-  font-style: normal; }
-
-.conum {
-  display: inline-block;
-  color: white !important;
-  background-color: #222222;
-  -webkit-border-radius: 100px;
-  border-radius: 100px;
-  text-align: center;
-  width: 1.2em;
-  height: 1.2em;
-  font-size: 0.9em;
-  font-weight: bold;
-  line-height: 1.2;
-  font-family: Arial, sans-serif;
-  font-style: normal;
-  position: relative;
-  top: -0.1em; }
-
-.conum:after {
-  content: attr(data-value); }
-
 span.small {
   font-size: 60%; }
 
@@ -86,7 +62,6 @@ i.fa.fa-external-link {
 .tip {
   color: blue; }
 
-/* warnings pop */
 .fa-exclamation-triangle {
   color: red; }
 
@@ -110,9 +85,12 @@ section.summary p {
 .vcenter, .slides h1 {
   position: absolute;
   top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   left: 50%;
-  width: 100%; }
+  width: 80%; }
 
 .reveal .slides {
   left: 50px;
