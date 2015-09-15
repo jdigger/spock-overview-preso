@@ -79,8 +79,12 @@ p.strong {
     font-size: 1.2em;
 }
 
-span.small {
+p.small, span.small {
     font-size: 60%;
+}
+
+p.smaller, span.smaller {
+    font-size: 80%;
 }
 
 i.fa.fa-external-link {
@@ -137,6 +141,11 @@ section.summary p {
     left: 0px;
     top: 0px;
 }
+
+img#gangsterspock {
+  height: 300px;
+}
+
 
 // To highlight a border:
 

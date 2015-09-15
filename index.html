@@ -7,7 +7,7 @@
 }
 </script><!--[if lt IE 9]>
 <script src="lib/js/html5shiv.js"></script>
-<![endif]--></head><body><div class="reveal"><div class="slides"><section class="title-slide"><div class="vcenter"><h2 style="font-size: 120px;">Spock</h2><h3>Making TDD and BDD More Logical</h3><p><small>Created by &nbsp;<a href="https://github.com/jdigger/">Jim Moore</a><span> / </span><a href="http://twitter.com/jdiggerj">@jdiggerj</a></small></p><p><img src="images/gangster_spock.jpg"></p></div></section><section><h1>Simple Testing</h1></section><section><div class="vcenter"><p>JUnit 4</p><pre><code class="java">@Test
+<![endif]--></head><body><div class="reveal"><div class="slides"><section class="title-slide"><div class="vcenter"><h2 style="font-size: 120px;">Spock</h2><h3>Making TDD and BDD More Logical</h3><p><small>Created by &nbsp;<a href="https://github.com/jdigger/">Jim Moore</a><p></p><a href="https://keybase.io/jmoore">keybase.io/jmoore</a><span> / </span><a href="http://twitter.com/jdiggerj">@jdiggerj</a></small></p><p><img id="gangsterspock" src="images/gangster_spock.jpg"></p></div></section><section><h1>Simple Testing</h1></section><section><div class="vcenter"><p>JUnit 4</p><pre><code class="java">@Test
 public void multiplicationOfZeroIntegersShouldReturnZero() {
     // MyClass is tested
     MyClass tester = new MyClass();
@@ -39,37 +39,29 @@ def "multiply #left and #right should return zero"() {
     0    | 10
     0    | 0
 }
-</code></pre></div></section><section><div class="vcenter"><p>What if there's an error?</p><img src="images/unroll_with_error.png"></div></section><section><h1>Mocking</h1></section><section><div class="vcenter"><p>EasyMock</p><pre><code class="java">List mock = createNiceMock(List.class);                                       
+</code></pre></div></section><section><div class="vcenter"><p>What if there's an error?</p><img src="images/unroll_with_error.png"></div></section><section><h1>Test Doubles</h1></section><section><div class="vcenter"><p><a href="http://mockito.org/">Mockito</a></p><pre><code class="java">List list = mock(List.class);
 
-expect(mock.get(0)).andStubReturn("one");                             
-expect(mock.get(1)).andStubReturn("two");
-mock.clear();
-
-replay(mock);
-
-someCodeThatInteractsWithMock(mock);                                                      
-
-verify(mock);</code></pre><p>Spock</p><pre><code class="java">given:
-List mock = Mock(List)
-
-when:
-someCodeThatInteractsWithMock(mock)
-
-then:
-1 * mock.get(0) >> "one"
-1 * mock.get(1) >> "two"
-</code></pre></div></section><section><div class="vcenter"><p>Groovy's closure -> method technique works as well</p><pre><code class="java">given:
-def mock = Mock(ArrayList)
-
-mock.get(_) >> {int idx -> idx == 0 ? "one" : idx == 1 ? "two" : "WAH? ${idx}"}
+when(list.get(0)).thenReturn("one");
+when(list.get(1)).thenReturn("two");
+</code></pre><p>Spock</p><pre><code class="java">List list = Stub(List) {
+  get(0) >> "one"
+  get(1) >> "two"
+}
+</code></pre></div></section><section><div class="vcenter"><h3>Order based return values</h3><p>For example, does your error handling behave gracefully?</p><pre><code class="java">service.remoteCall(_) >>>
+    ["ok", "fail", "ok"] >>
+    { throw new SocketException() } >>
+    "ok"
+    </code></pre></div></section><section><div class="vcenter"><p>Groovy's closure -> method technique works as well</p><pre><code class="java">given:
+def list = Stub(List)
+list.get(_) >> {int idx -> idx == 0 ? "one" : idx == 1 ? "two" : "WAH? ${idx}"}
 
 expect:
-mock.get(0) == "one"
-mock.get(1) == "two"
-mock.get(7) == "WAH? 7"</code></pre><p>If you have <code>cglib</code> in your classpath, you can mock classes (not just instances)</p></div></section><section><div class="vcenter"><p>That's barely scratching the surface.</p><p>Check out the "interaction" docs for a lot more:</p><p><a href="http://spock-framework.readthedocs.org/en/latest/interaction_based_testing.html">http://spock-framework.readthedocs.org/en/latest/interaction_based_testing.html</a></p></div></section><section><h1>Basics</h1></section><section><div class="vcenter"><p>Spock transparently "appears" to be JUnit to tooling, so nothing special needs to be done in most tool-chains</p></div></section><section><div class="vcenter"><p>Spock follows <a href="http://en.wikipedia.org/wiki/Behavior-driven_development">BDD</a> terminology, so you write "features" (a.k.a. "tests") and "specification" (a.k.a. "test suites")</p></div></section><section><div class="vcenter"><p>The easiest way to write a specification is to extend the <code>Specification</code> class</p><pre><code class="java">class MyClassSpec extends Specification {
+list.get(0) == "one"
+list.get(1) == "two"
+list.get(7) == "WAH? 7"</code></pre><p>If you have <code>cglib</code> in your classpath, you can mock classes (not just interfaces)</p></div></section><section><div class="vcenter"><h3>Use the right tool for the job</h3><ul><li><b>Mock</b> - Verify how many times something has been called</li><li><b>Stub</b> - Return specific values; can be based on order or input</li><li><b>Spy</b> - Allows intercepting specific calls on a concrete class instance (discouraged)</li></ul><p>&nbsp;</p><p>"Mock" can also function as a Stub and a Spy, but if you are doing that <a href="http://monkeyisland.pl/2008/04/26/asking-and-telling/">you should ask yourself why...</a></p></div></section><section><div class="vcenter"><p>That's barely scratching the surface</p><p>&nbsp;</p><p>Check out <a href="https://spockframework.github.io/spock/docs/1.0/interaction_based_testing.html">the "interaction" docs for a lot more</a></p></div></section><section><h1>Basics</h1></section><section><div class="vcenter"><p>Spock transparently "appears" to be JUnit to tooling, so nothing special needs to be done in most tool-chains</p></div></section><section><div class="vcenter"><p>Spock follows <a href="http://en.wikipedia.org/wiki/Behavior-driven_development">BDD</a> terminology, so you write "feature descriptions" (analogous to tests) and "specifications" (analogous to test suites)</p></div></section><section><div class="vcenter"><p>If you have ever used a more "pure" BDD platform, like <a href="http://rspec.info/">RSpec</a>, the difference between "feature description" vs "test" becomes pretty clear</p></div></section><section><div class="vcenter"><p>However, because JUnit is the de-facto paradigm on the JVM, for both cultural and tooling reasons Spock specifications tend to look a lot more like JUnit+++ than RSpec</p></div></section><section><div class="vcenter"><p>The easiest way to write a specification is to extend the <code>Specification</code> class</p><pre><code class="java">class MyClassSpec extends Specification {
     // ...
 }
-</code></pre></div></section><section><div class="vcenter"><p>To create a feature definition create a method that defines what is "given", what happens "when" then features is used, and what should "then" be true</p><pre><code class="java">def "this feature does ..."() {
+</code></pre></div></section><section><div class="vcenter"><p>To create a feature definition create a method that defines what is "given", what happens "when" the feature is used, and what should "then" be true</p><pre><code class="java">def "this feature does ..."() {
     given: // implicit if the code is not in another block, like "when"
     def myClass = new MyClass()
     myClass.initialize()
@@ -83,7 +75,22 @@ mock.get(7) == "WAH? 7"</code></pre><p>If you have <code>cglib</code> in your cl
 </code></pre></div></section><section><div class="vcenter"><p>Sometimes what you want to test is a simple function</p><pre><code class="java">def "this feature does ..."() {
     expect: // combines "when" and "then"
     Math.max(0, 3) == 3
-}</code></pre><p>The lines in "then" or "expect" should evaluate to true/false, including Groovy "truthiness"</p></div></section><section><div class="vcenter"><p>Set up a variable for the features to use</p><pre><code class="java">class MyClassSpec extends Specification {
+}</code></pre><p>The lines in "then" or "expect" should evaluate to true/false, including Groovy "truthiness"</p></div></section><section><div class="vcenter"><p>"<code>expect:</code>" is also useful for veryifying preconditions</p><pre><code class="java">@Shared handle = DBI.open("jdbc:h2:mem:test")
+
+def "writes to the database when data is added"() {
+  expect:
+  selectInt("select count(*) from user") == 0 !
+  
+  given:
+  def user = new User(name: "Spock") !
+  
+  when:
+  userStore.persist(user)
+  
+  then:
+  selectInt("select count(*) from user") == 1
+}
+</code></pre></div></section><section><div class="vcenter"><p>Set up a variable for the features to use</p><pre><code class="java">class MyClassSpec extends Specification {
     @Subject
     MyClass myClass = new MyClass()
     
@@ -94,7 +101,7 @@ mock.get(7) == "WAH? 7"</code></pre><p>If you have <code>cglib</code> in your cl
     def cleanup() {
         myClass.close()
     }
-}</code></pre><p>The <code>@Subject</code> is informational only, just to highlight the "subject under test"</p><p>A new instance of <code>MyClass</code> is created for each feature run</p><p>(At compile time, the "<code>new MyClass()</code>" is actually moved down into the "<code>setup()</code>")</p></div></section><section><div class="vcenter"><p>Set up a variable for the entire specification to use (and share between features)</p><pre><code class="java">class MyClassSpec extends Specification {
+}</code></pre><p class="smaller">The <code>@Subject</code> is informational only, just to highlight the "subject under test"</p><p class="smaller">A new instance of <code>MyClass</code> is created for each feature run</p><p class="small">At compile time, the "<code>new MyClass()</code>" is actually moved down into the "<code>setup()</code>"</p></div></section><section><div class="vcenter"><p>Set up a variable for the entire specification to use (and share between features)</p><pre><code class="java">class MyClassSpec extends Specification {
     @Shared
     MyClass myClass = new MyClass()
     
@@ -105,7 +112,7 @@ mock.get(7) == "WAH? 7"</code></pre><p>If you have <code>cglib</code> in your cl
     def cleanupSpec() {
         myClass.close()
     }
-}</code></pre><p>While a "<code>static</code>" field could also work, <code>@Shared</code> is much preferred because you have much better lifecycle control</p></div></section><section><div class="vcenter"><p>When you want to check that an exception is thrown:</p><pre><code class="java">given:
+}</code></pre><p>While a "<code>static</code>" field could also work, <code>@Shared</code> is much preferred because you have much better lifecycle control</p><p class="small"><code>static</code> fields should only be used for constants. (i.e., <code>static final</code>)</p></div></section><section><h2 class="vcenter">Exceptions</h2></section><section><div class="vcenter"><p>When you want to check that an exception is thrown:</p><pre><code class="java">given:
 crew << "Kirk"
 
 when:
@@ -131,61 +138,16 @@ def "size increases when pushed"() {
     
     then:
     stack.size() == old(stack.size()) + 1
-    
-}</code></pre></div></section><section><h1>Extensions</h1></section><section><div class="vcenter"><p>Ignoring a pending feature</p><pre><code class="java">class MyClassSpec extends Specification {
-    @Ignore
-    def "a feature that's pending"() {
-        expect:
-        false
-    }
-    
-    def "a working feature"() {
-        expect:
-        true
-    }
-}</code></pre><p><code>@Ignore</code> can also be applied to the class to ignore the entire specification</p></div></section><section><div class="vcenter"><p>For those times when you want to test just a single feature...</p><pre><code class="java">class MyClassSpec extends Specification {
-    def "a feature"() {
-        // ...
-    }
-    
-    @IgnoreRest
-    def "another feature"() {
-        // ...
-    }
-    
-    def "yet another feature"() {
-        // ...
-    }
-}</code></pre><p>Only "another feature" will run; the other features effectively have <code>@Ignore</code></p><p>Like <code>@Ignore</code>, this can also be applied to the class</p></div></section><section><div class="vcenter"><p>Conditional features</p><pre><code class="java">@IgnoreIf({ System.getProperty("os.name").contains("windows") })
-def "I'll run everywhere but on Windows"() { ... }
+}
+</code></pre></div></section><section><div class="vcenter"><p>That effectively gets rewritten to</p><pre><code class="java">def stack = new Stack()
 
-@Requires({ os.windows })
-def "I'll only run on Windows"() { ... }</code></pre><p>Some of the properties provided are "<code>os</code>", "<code>sys</code>" (<code>System.getProperty</code>), "<code>env</code>" (environment variables), and "<code>jvm</code>" (JVM info)</p></div></section><section><div class="vcenter"><p>While generally it's best if the order of execution of features are independant, sometimes you want/need to force their order</p><pre><code class="java">@Stepwise
-class RunInOrderSpec extends Specification {
-    def "I run first"()  { ... }
-    def "I run second"() { ... }
-}
-</code></pre></div></section><section><div class="vcenter"><p>To set a timing threshold</p><pre><code class="java">@Timeout(10)
-class TimedSpec extends Specification {
-    def "I fail after ten seconds"() { ... }
+def "size increases when pushed"() {
+    int old_stack_size = stack.size()
     
-    @Timeout(value = 250, unit = MILLISECONDS)
-    def "I fail much faster"() { ... }
-}</code></pre><p>Of course for "real" tests you'd want something much more robust/accurate, but this is simple</p></div></section><section><div class="vcenter"><p>The following are the same</p><pre><code class="java">class MyClassSpec1 extends Specification {
-    @AutoCleanup
-    MyClass myClass = new MyClass()
-}
-
-class MyClassSpec2 extends Specification {
-    MyClass myClass = new MyClass()
+    stack.push("bunny")
     
-    def cleanup() {
-        myClass.close()
-    }
-}
-</code></pre><p>If the method to clean up your class' resources is something other than <code>close()</code>, pass that as the value to <code>@AutoCleanup</code></p><p>This also works on <code>@Shared</code> members</p></div></section><section><div class="vcenter"><p>Similar to th <code>@Subject</code> annotation, another "documentation only" annotation that's useful is <code>@Issue</code></p><pre><code class="java">@Issue("http://issuetracker.myco.com/ISSUE-14826")
-def "should not have a regression bug anymore"() { ... }
-</code></pre></div></section><section><div class="vcenter"><p>For a lot more information, see <a href="http://spock-framework.readthedocs.org/en/latest/extensions.html">the Extensions</a> documentation</p></div></section><section><h1>Data Driven Tests</h1></section><section><div class="vcenter"><p>We saw some of this earlier:</p><pre><code class="java">@Unroll
+    assert stack.size() == old_stack_size + 1
+}</code></pre></div></section><section><h1>Data Driven Tests</h1></section><section><div class="vcenter"><p>We saw some of this earlier:</p><pre><code class="java">@Unroll
 def "multiply #left and #right should return zero"() {
     given:
     def tester = new MyClass()
@@ -236,7 +198,65 @@ def "verify calculations for #a * #b == #c"() {
     "12a"  | false
     
     description = expected ? "an integer" : "not an integer"
-}</code></pre><img src="images/expressive_unroll.png"></div></section><section><div class="vcenter"><p>For a lot more information, see <a href="http://spock-framework.readthedocs.org/en/latest/data_driven_testing.html">the Data Driven Tests</a> documentation</p></div></section><section><h1>Q & A</h1></section><section><div class="vcenter"><h2>References</h2><ul><li><a href="http://spock-framework.readthedocs.org/en/latest/index.html">Spock Documentation</a></li><li>Idiomatic Spock - excellent talk on taking your tests to the next level (<a href="https://www.youtube.com/watch?v=dvDoieRf4po">video</a> and <a href="https://github.com/robfletcher/idiomatic-spock">slides/code</a>)</li></ul></div></section><script src="lib/js/head.min.js"></script><script src="js/reveal.js"></script><script type="text/javascript">// Full list of configuration options available here:
+}</code></pre><img src="images/expressive_unroll.png"></div></section><section><div class="vcenter"><p>For a lot more information, see <a href="http://spock-framework.readthedocs.org/en/latest/data_driven_testing.html">the Data Driven Tests</a> documentation</p></div></section><section><h1>Extensions</h1></section><section><div class="vcenter"><p>Ignoring a pending feature</p><pre><code class="java">class MyClassSpec extends Specification {
+    @Ignore("Want to record it while thinking about capabilities")
+    def "a feature that's pending"() {
+        expect:
+        false
+    }
+    
+    def "a working feature"() {
+        expect:
+        true
+    }
+}</code></pre><p><code>@Ignore</code> can also be applied to the class to ignore the entire specification</p><p class="small">There is a <code>@PendingFeature</code> annotation that's much nicer for "not yet implemented" features, but it has not been released yet</p></div></section><section><div class="vcenter"><p>For those times when you want to test just a single feature...</p><pre><code class="java">class MyClassSpec extends Specification {
+    def "a feature"() {
+        // ...
+    }
+    
+    @IgnoreRest
+    def "another feature"() {
+        // ...
+    }
+    
+    def "yet another feature"() {
+        // ...
+    }
+}</code></pre><p>Only "another feature" will run; the other features effectively have <code>@Ignore</code></p><p>Like <code>@Ignore</code>, this can also be applied to the class</p></div></section><section><div class="vcenter"><p>Conditional features</p><pre><code class="java">@Requires({ os.windows })
+def "I'll only run on Windows"() { ... }
+
+@IgnoreIf({ jvm.java8 })
+def "I'll run everywhere but on Java 8"() { ... }
+</code></pre><p>Some of the properties provided are "<code>os</code>", "<code>sys</code>" (<code>System.getProperty</code>), "<code>env</code>" (environment variables), and "<code>jvm</code>" (JVM info)</p></div></section><section><div class="vcenter"><p>Especially for integration tests it's often useful to prevent a lot of false-positives to only run a test if you know the remote service is able to respond to events</p><pre><code class="java">@Requires({ remoteServiceIsUp() })
+def "I'll only run if the remote service is up"() { ... }
+
+static boolean remoteServiceIsUp() { ... }
+</code></pre></div></section><section><div class="vcenter"><p>While generally it's best if the order of execution of features are independant, sometimes you want/need to force their order</p><pre><code class="java">@Stepwise
+class RunInOrderSpec extends Specification {
+    def "I run first"()  { ... }
+    def "I run second"() { ... }
+}
+</code></pre></div></section><section><div class="vcenter"><p>To set a timing threshold</p><pre><code class="java">@Timeout(10)
+class TimedSpec extends Specification {
+    def "I fail after ten seconds"() { ... }
+    
+    @Timeout(value = 250, unit = MILLISECONDS)
+    def "I fail much faster"() { ... }
+}</code></pre><p>Of course for "real" tests you'd want something much more robust/accurate, but this is simple</p></div></section><section><div class="vcenter"><p>The following are the same</p><pre><code class="java">class MyClassSpec1 extends Specification {
+    @AutoCleanup
+    MyClass myClass = new MyClass()
+}
+
+class MyClassSpec2 extends Specification {
+    MyClass myClass = new MyClass()
+    
+    def cleanup() {
+        myClass.close()
+    }
+}
+</code></pre><p>If the method to clean up your class' resources is something other than <code>close()</code>, pass that as the value to <code>@AutoCleanup</code></p><p>&nbsp;</p><p>This also works on <code>@Shared</code> members</p></div></section><section><div class="vcenter"><p>Similar to th <code>@Subject</code> annotation, another "documentation only" annotation that's useful is <code>@Issue</code></p><pre><code class="java">@Issue("http://issuetracker.myco.com/ISSUE-14826")
+def "should not have a regression bug anymore"() { ... }
+</code></pre></div></section><section><div class="vcenter"><p>For a lot more information, see <a href="https://github.com/spockframework/spock/blob/master/docs/extensions.adoc">the Extensions</a> documentation</p></div></section><section><h1>Q & A</h1></section><section><div class="vcenter"><h2>References</h2><ul><li><a href="https://spockframework.github.io/spock/docs/1.0/index.html">Spock Documentation</a></li><li>Idiomatic Spock - excellent talk on taking your tests to the next level (<a href="https://www.youtube.com/watch?v=dvDoieRf4po">video</a> and <a href="https://github.com/robfletcher/idiomatic-spock">slides/code</a>)</li></ul></div></section><script src="lib/js/head.min.js"></script><script src="js/reveal.js"></script><script type="text/javascript">// Full list of configuration options available here:
 // https://github.com/hakimel/reveal.js#configuration
 Reveal.initialize({
     controls: false,

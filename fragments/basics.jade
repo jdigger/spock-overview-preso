@@ -7,7 +7,15 @@ section
 
 section
     .vcenter
-        p Spock follows <a href="http://en.wikipedia.org/wiki/Behavior-driven_development">BDD</a> terminology, so you write "features" (a.k.a. "tests") and "specification" (a.k.a. "test suites")
+        p Spock follows <a href="http://en.wikipedia.org/wiki/Behavior-driven_development">BDD</a> terminology, so you write "feature descriptions" (analogous to tests) and "specifications" (analogous to test suites)
+
+section
+    .vcenter
+        p If you have ever used a more "pure" BDD platform, like <a href="http://rspec.info/">RSpec</a>, the difference between "feature description" vs "test" becomes pretty clear
+
+section
+    .vcenter
+        p However, because JUnit is the de-facto paradigm on the JVM, for both cultural and tooling reasons Spock specifications tend to look a lot more like JUnit+++ than RSpec
 
 section
     .vcenter
@@ -19,7 +27,7 @@ section
 
 section
     .vcenter
-        p To create a feature definition create a method that defines what is "given", what happens "when" then features is used, and what should "then" be true
+        p To create a feature definition create a method that defines what is "given", what happens "when" the feature is used, and what should "then" be true
         pre: code.java.
             def "this feature does ..."() {
                 given: // implicit if the code is not in another block, like "when"
@@ -45,6 +53,26 @@ section
 
 section
     .vcenter
+        p "<code>expect:</code>" is also useful for veryifying preconditions
+        pre: code.java.
+          @Shared handle = DBI.open("jdbc:h2:mem:test")
+
+          def "writes to the database when data is added"() {
+            expect:
+            selectInt("select count(*) from user") == 0 !
+
+            given:
+            def user = new User(name: "Spock") !
+
+            when:
+            userStore.persist(user)
+
+            then:
+            selectInt("select count(*) from user") == 1
+          }
+
+section
+    .vcenter
         p Set up a variable for the features to use
         pre: code.java.
             class MyClassSpec extends Specification {
@@ -59,9 +87,9 @@ section
                     myClass.close()
                 }
             }
-        p The <code>@Subject</code> is informational only, just to highlight the "subject under test"
-        p A new instance of <code>MyClass</code> is created for each feature run
-        p (At compile time, the "<code>new MyClass()</code>" is actually moved down into the "<code>setup()</code>")
+        p.smaller The <code>@Subject</code> is informational only, just to highlight the "subject under test"
+        p.smaller A new instance of <code>MyClass</code> is created for each feature run
+        p.small At compile time, the "<code>new MyClass()</code>" is actually moved down into the "<code>setup()</code>"
 
 section
     .vcenter
@@ -80,6 +108,11 @@ section
                 }
             }
         p While a "<code>static</code>" field could also work, <code>@Shared</code> is much preferred because you have much better lifecycle control
+        
+        p.small <code>static</code> fields should only be used for constants. (i.e., <code>static final</code>)
+
+section
+    h2.vcenter Exceptions
 
 section
     .vcenter
@@ -121,5 +154,18 @@ section
 
                 then:
                 stack.size() == old(stack.size()) + 1
+            }
 
+section
+    .vcenter
+        p That effectively gets rewritten to
+        pre: code.java.
+            def stack = new Stack()
+
+            def "size increases when pushed"() {
+                int old_stack_size = stack.size()
+
+                stack.push("bunny")
+
+                assert stack.size() == old_stack_size + 1
             }

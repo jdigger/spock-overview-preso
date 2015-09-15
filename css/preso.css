@@ -53,8 +53,11 @@ p.strong {
   font-weight: bold;
   font-size: 1.2em; }
 
-span.small {
+p.small, span.small {
   font-size: 60%; }
+
+p.smaller, span.smaller {
+  font-size: 80%; }
 
 i.fa.fa-external-link {
   font-size: 60%; }
@@ -99,3 +102,8 @@ section.summary p {
 .reveal .slides > section {
   left: 0px;
   top: 0px; }
+
+img#gangsterspock {
+  height: 300px; }
+
+/*# sourceMappingURL=preso.css.map */

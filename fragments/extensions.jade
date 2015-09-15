@@ -6,7 +6,7 @@ section
         p Ignoring a pending feature
         pre: code.java.
             class MyClassSpec extends Specification {
-                @Ignore
+                @Ignore("Want to record it while thinking about capabilities")
                 def "a feature that's pending"() {
                     expect:
                     false
@@ -18,6 +18,8 @@ section
                 }
             }
         p <code>@Ignore</code> can also be applied to the class to ignore the entire specification
+        
+        p.small There is a <code>@PendingFeature</code> annotation that's much nicer for "not yet implemented" features, but it has not been released yet
 
 section
     .vcenter
@@ -44,12 +46,22 @@ section
     .vcenter
         p Conditional features
         pre: code.java.
-            @IgnoreIf({ System.getProperty("os.name").contains("windows") })
-            def "I'll run everywhere but on Windows"() { ... }
-
             @Requires({ os.windows })
             def "I'll only run on Windows"() { ... }
+
+            @IgnoreIf({ jvm.java8 })
+            def "I'll run everywhere but on Java 8"() { ... }
+
         p Some of the properties provided are "<code>os</code>", "<code>sys</code>" (<code>System.getProperty</code>), "<code>env</code>" (environment variables), and "<code>jvm</code>" (JVM info)
+
+section
+    .vcenter
+        p Especially for integration tests it's often useful to prevent a lot of false-positives to only run a test if you know the remote service is able to respond to events
+        pre: code.java.
+            @Requires({ remoteServiceIsUp() })
+            def "I'll only run if the remote service is up"() { ... }
+
+            static boolean remoteServiceIsUp() { ... }
 
 section
     .vcenter
@@ -92,6 +104,7 @@ section
             }
 
         p If the method to clean up your class' resources is something other than <code>close()</code>, pass that as the value to <code>@AutoCleanup</code>
+        p &nbsp;
         p This also works on <code>@Shared</code> members
 
 section
@@ -103,4 +116,4 @@ section
 
 section
     .vcenter
-        p For a lot more information, see <a href="http://spock-framework.readthedocs.org/en/latest/extensions.html">the Extensions</a> documentation
+        p For a lot more information, see <a href="https://github.com/spockframework/spock/blob/master/docs/extensions.adoc">the Extensions</a> documentation

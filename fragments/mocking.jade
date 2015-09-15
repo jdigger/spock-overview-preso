@@ -1,50 +1,62 @@
 section
-    h1 Mocking
+    h1 Test Doubles
 
 section
     .vcenter
-        p EasyMock
+        p <a href="http://mockito.org/">Mockito</a>
         pre: code.java.
-            List mock = createNiceMock(List.class);                                       
+            List list = mock(List.class);
 
-            expect(mock.get(0)).andStubReturn("one");                             
-            expect(mock.get(1)).andStubReturn("two");
-            mock.clear();
+            when(list.get(0)).thenReturn("one");
+            when(list.get(1)).thenReturn("two");
 
-            replay(mock);
-
-            someCodeThatInteractsWithMock(mock);                                                      
-
-            verify(mock);
         p Spock
         pre: code.java.
-            given:
-            List mock = Mock(List)
+            List list = Stub(List) {
+              get(0) >> "one"
+              get(1) >> "two"
+            }
 
-            when:
-            someCodeThatInteractsWithMock(mock)
+section
+    .vcenter
+        h3 Order based return values
 
-            then:
-            1 * mock.get(0) >> "one"
-            1 * mock.get(1) >> "two"
+        p For example, does your error handling behave gracefully?
+
+        pre: code.java.
+            service.remoteCall(_) >>>
+                ["ok", "fail", "ok"] >>
+                { throw new SocketException() } >>
+                "ok"
 
 section
     .vcenter
         p Groovy's closure -> method technique works as well
         pre: code.java.
             given:
-            def mock = Mock(ArrayList)
-
-            mock.get(_) >> {int idx -> idx == 0 ? "one" : idx == 1 ? "two" : "WAH? ${idx}"}
+            def list = Stub(List)
+            list.get(_) >> {int idx -> idx == 0 ? "one" : idx == 1 ? "two" : "WAH? ${idx}"}
 
             expect:
-            mock.get(0) == "one"
-            mock.get(1) == "two"
-            mock.get(7) == "WAH? 7"
-        p If you have <code>cglib</code> in your classpath, you can mock classes (not just instances)
+            list.get(0) == "one"
+            list.get(1) == "two"
+            list.get(7) == "WAH? 7"
+        p If you have <code>cglib</code> in your classpath, you can mock classes (not just interfaces)
+
+section
+  .vcenter
+    h3 Use the right tool for the job
+    ul
+      li <b>Mock</b> - Verify how many times something has been called
+      li <b>Stub</b> - Return specific values; can be based on order or input
+      li <b>Spy</b> - Allows intercepting specific calls on a concrete class instance (discouraged)
+    
+    p &nbsp;
+
+    p "Mock" can also function as a Stub and a Spy, but if you are doing that <a href="http://monkeyisland.pl/2008/04/26/asking-and-telling/">you should ask yourself why...</a>
 
 section
     .vcenter
-        p That's barely scratching the surface.
-        p Check out the "interaction" docs for a lot more:
-        p: a(href="http://spock-framework.readthedocs.org/en/latest/interaction_based_testing.html") http://spock-framework.readthedocs.org/en/latest/interaction_based_testing.html
+        p That's barely scratching the surface
+        p &nbsp;
+        p Check out <a href="https://spockframework.github.io/spock/docs/1.0/interaction_based_testing.html">the "interaction" docs for a lot more</a>
